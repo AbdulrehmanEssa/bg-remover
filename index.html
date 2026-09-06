@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Background Remover</title>
+    <title>⚡ Super-Fast AI Background Remover</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
@@ -13,20 +13,20 @@
         .upload-btn { background: #2563eb; color: white; padding: 14px 28px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-block; transition: 0.2s; }
         .upload-btn:hover { background: #1d4ed8; }
         input[type="file"] { display: none; }
-        #status { margin-top: 20px; font-weight: 600; color: #2563eb; min-height: 24px; }
+        #status { margin-top: 20px; font-weight: 600; color: #2563eb; min-height: 24px; word-break: break-word; }
         .result-box { margin-top: 20px; display: none; }
         img { max-width: 100%; height: auto; border-radius: 8px; margin-top: 15px; border: 2px dashed #cbd5e1; }
         .download-btn { background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; margin-top: 15px; }
         .download-btn:hover { background: #15803d; }
     </style>
-    <!-- AI Library -->
+    <!-- Optimized AI Library for Browsers -->
     <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
 </head>
 <body>
 
 <div class="card">
-    <h1>AI Background Remover</h1>
-    <p>100% Free Automatic Background Removal</p>
+    <h1>⚡ AI Background Remover</h1>
+    <p>Unlimited Free & Fast Auto Background Removal</p>
     
     <label class="upload-btn">
         📁 Select Image
@@ -54,33 +54,37 @@
         const file = e.target.files[0];
         if (!file) return;
 
-        status.innerHTML = "⏳ AI Model Loading... Please wait";
+        status.style.color = "#2563eb";
+        status.innerHTML = "⏳ Initializing AI Engine... Please wait.";
         resultBox.style.display = 'none';
 
         try {
-            const removeFn = window.imglyRemoveBackground || (window.imgly && window.imgly.removeBackground);
-            if (!removeFn) {
-                throw new Error("AI Library load nahi hui. Internet connection check karein.");
-            }
-
-            const blob = await removeFn(file, {
+            // Configuration optimized for quick CDN access
+            const config = {
                 progress: (key, current, total) => {
                     if (total > 0) {
                         const percent = Math.round((current / total) * 100);
-                        status.innerHTML = `⏳ Processing: ${percent}%`;
+                        status.innerHTML = `⏳ AI Processing: ${percent}%`;
                     }
                 }
-            });
+            };
 
+            // Call the library function
+            const blob = await imglyRemoveBackground(file, config);
             const url = URL.createObjectURL(blob);
+            
+            // Set output image src and download link
             outputImage.src = url;
             downloadBtn.href = url;
             
+            // Show result
+            status.style.color = "#16a34a";
             status.innerHTML = "✅ Background Successfully Removed!";
             resultBox.style.display = 'block';
         } catch (error) {
-            console.error(error);
-            status.innerHTML = "❌ Error: " + (error.message || "Image process nahi ho saki. Choti image try karein.");
+            console.error("Full Error details:", error);
+            status.style.color = "#dc2626";
+            status.innerHTML = "❌ Error: Browser can't start AI. Use a modern browser or try a smaller image.";
         }
     });
 </script>
