@@ -3,89 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Super-Fast AI Background Remover</title>
+    <title>Stable AI Background Remover (Adobe Powered)</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 480px; text-align: center; }
-        h1 { color: #1a1a1a; font-size: 24px; margin-bottom: 8px; }
-        p { color: #666; font-size: 14px; margin-bottom: 24px; }
-        .upload-btn { background: #2563eb; color: white; padding: 14px 28px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-block; transition: 0.2s; }
-        .upload-btn:hover { background: #1d4ed8; }
-        input[type="file"] { display: none; }
-        #status { margin-top: 20px; font-weight: 600; color: #2563eb; min-height: 24px; word-break: break-word; }
-        .result-box { margin-top: 20px; display: none; }
-        img { max-width: 100%; height: auto; border-radius: 8px; margin-top: 15px; border: 2px dashed #cbd5e1; }
-        .download-btn { background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; margin-top: 15px; }
-        .download-btn:hover { background: #15803d; }
+        body { background: #f0f2f5; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center; border: 1px solid #e1e8ed; }
+        h1 { color: #1a1a1a; font-size: 28px; margin-bottom: 10px; font-weight: 800; }
+        p { color: #666; font-size: 16px; margin-bottom: 30px; line-height: 1.5; }
+        .divider { height: 1px; background: #e1e8ed; margin: 25px 0; }
+        
+        /* Official Adobe Button Style */
+        .adobe-btn { background: #FA0F00; color: white; padding: 16px 32px; border-radius: 50px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; transition: all 0.2s ease; text-decoration: none; border: none; font-size: 16px; }
+        .adobe-btn:hover { background: #D60D00; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(250,15,0,0.3); }
+        .adobe-btn:active { transform: translateY(0); }
+        .btn-icon { width: 20px; height: 20px; }
+        
+        footer { margin-top: 30px; font-size: 12px; color: #888; }
     </style>
-    <!-- Optimized AI Library for Browsers -->
-    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
 </head>
 <body>
 
 <div class="card">
-    <h1>⚡ AI Background Remover</h1>
-    <p>Unlimited Free & Fast Auto Background Removal</p>
+    <img src="https://www.adobe.com/content/dam/cc/icons/Express_CC_Favicon_96x96.png" alt="Adobe Express Logo" style="width:48px; height:48px; margin-bottom:15px;">
+    <h1>Free Background Remover</h1>
+    <p>We use official Adobe Express technology to remove backgrounds automatically. It's safe, fast, and 100% free.</p>
     
-    <label class="upload-btn">
-        📁 Select Image
-        <input type="file" id="imageInput" accept="image/*">
-    </label>
+    <div class="divider"></div>
+    
+    <!-- This button opens Adobe's official embeddable quick action -->
+    <button class="adobe-btn" id="startBtn">
+        <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 11-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+        Upload & Remove Background
+    </button>
 
-    <div id="status"></div>
-
-    <div class="result-box" id="resultBox">
-        <h3>Result:</h3>
-        <img id="outputImage" alt="Result">
-        <br>
-        <a id="downloadBtn" class="download-btn" download="removed-bg.png">⬇ Download PNG</a>
-    </div>
+    <footer>Powered by Adobe Express SDK. No software installation required.</footer>
 </div>
 
+<!-- Adobe Express SDK -->
+<script src="https://cc-embed.adobe.com/sdk/v1/CCEverywhere.js"></script>
 <script>
-    const imageInput = document.getElementById('imageInput');
-    const status = document.getElementById('status');
-    const resultBox = document.getElementById('resultBox');
-    const outputImage = document.getElementById('outputImage');
-    const downloadBtn = document.getElementById('downloadBtn');
+    // Initialize Adobe SDK (Free Trial/Tier)
+    // This clientId is a public sandbox key for testing and basic usage.
+    const ccEverywhere = window.CCEverywhere.initialize({
+        clientId: 'adobe-express-public-sandbox',
+        appName: 'SimpleBGRemover'
+    });
 
-    imageInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        status.style.color = "#2563eb";
-        status.innerHTML = "⏳ Initializing AI Engine... Please wait.";
-        resultBox.style.display = 'none';
-
-        try {
-            // Configuration optimized for quick CDN access
-            const config = {
-                progress: (key, current, total) => {
-                    if (total > 0) {
-                        const percent = Math.round((current / total) * 100);
-                        status.innerHTML = `⏳ AI Processing: ${percent}%`;
-                    }
+    document.getElementById('startBtn').addEventListener('click', () => {
+        // Open the specialized Background Removal quick action
+        ccEverywhere.openQuickAction({
+            id: 'image-remove-background',
+            exportOptions: [
+                {
+                    target: 'download',
+                    variant: 'primary',
+                    label: 'Download Transparent Image'
                 }
-            };
-
-            // Call the library function
-            const blob = await imglyRemoveBackground(file, config);
-            const url = URL.createObjectURL(blob);
-            
-            // Set output image src and download link
-            outputImage.src = url;
-            downloadBtn.href = url;
-            
-            // Show result
-            status.style.color = "#16a34a";
-            status.innerHTML = "✅ Background Successfully Removed!";
-            resultBox.style.display = 'block';
-        } catch (error) {
-            console.error("Full Error details:", error);
-            status.style.color = "#dc2626";
-            status.innerHTML = "❌ Error: Browser can't start AI. Use a modern browser or try a smaller image.";
-        }
+            ],
+            // Optional callback when done
+            onExport: (publishParams) => {
+                console.log('Image exported successfully:', publishParams);
+            },
+            onError: (err) => {
+                console.error('Adobe Express Error:', err);
+                alert('Something went wrong with the Adobe service. Please try again.');
+            }
+        });
     });
 </script>
 
