@@ -3,32 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Background Remover - 100% Free</title>
+    <title>AI Background Remover</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #f4f7fe; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
-        h1 { color: #333; font-size: 24px; margin-bottom: 10px; }
-        p { color: #666; font-size: 14px; margin-bottom: 25px; }
-        .upload-btn { background: #4f46e5; color: white; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-block; transition: 0.3s; }
-        .upload-btn:hover { background: #4338ca; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 480px; text-align: center; }
+        h1 { color: #1a1a1a; font-size: 24px; margin-bottom: 8px; }
+        p { color: #666; font-size: 14px; margin-bottom: 24px; }
+        .upload-btn { background: #2563eb; color: white; padding: 14px 28px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-block; transition: 0.2s; }
+        .upload-btn:hover { background: #1d4ed8; }
         input[type="file"] { display: none; }
-        #status { margin-top: 20px; font-weight: 500; color: #4f46e5; }
+        #status { margin-top: 20px; font-weight: 600; color: #2563eb; min-height: 24px; }
         .result-box { margin-top: 20px; display: none; }
-        img { max-width: 100%; border-radius: 8px; margin-top: 15px; border: 2px dashed #ddd; }
-        .download-btn { background: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-top: 15px; }
+        img { max-width: 100%; height: auto; border-radius: 8px; margin-top: 15px; border: 2px dashed #cbd5e1; }
+        .download-btn { background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; margin-top: 15px; }
+        .download-btn:hover { background: #15803d; }
     </style>
-    <!-- Free AI Background Removal Library -->
+    <!-- AI Library -->
     <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
 </head>
 <body>
 
 <div class="card">
     <h1>AI Background Remover</h1>
-    <p>Upload image to remove background automatically for free.</p>
+    <p>100% Free Automatic Background Removal</p>
     
     <label class="upload-btn">
-        Choose Image
+        📁 Select Image
         <input type="file" id="imageInput" accept="image/*">
     </label>
 
@@ -38,7 +39,7 @@
         <h3>Result:</h3>
         <img id="outputImage" alt="Result">
         <br>
-        <a id="downloadBtn" class="download-btn" download="removed-bg.png">Download Image</a>
+        <a id="downloadBtn" class="download-btn" download="removed-bg.png">⬇ Download PNG</a>
     </div>
 </div>
 
@@ -53,22 +54,33 @@
         const file = e.target.files[0];
         if (!file) return;
 
-        status.innerText = "Processing image... Please wait (first time takes a few seconds).";
+        status.innerHTML = "⏳ AI Model Loading... Please wait";
         resultBox.style.display = 'none';
 
         try {
-            // Background Removal Function
-            const blob = await imglyRemoveBackground(file);
+            const removeFn = window.imglyRemoveBackground || (window.imgly && window.imgly.removeBackground);
+            if (!removeFn) {
+                throw new Error("AI Library load nahi hui. Internet connection check karein.");
+            }
+
+            const blob = await removeFn(file, {
+                progress: (key, current, total) => {
+                    if (total > 0) {
+                        const percent = Math.round((current / total) * 100);
+                        status.innerHTML = `⏳ Processing: ${percent}%`;
+                    }
+                }
+            });
+
             const url = URL.createObjectURL(blob);
-            
             outputImage.src = url;
             downloadBtn.href = url;
             
-            status.innerText = "Done!";
+            status.innerHTML = "✅ Background Successfully Removed!";
             resultBox.style.display = 'block';
         } catch (error) {
             console.error(error);
-            status.innerText = "Error removing background. Please try another image.";
+            status.innerHTML = "❌ Error: " + (error.message || "Image process nahi ho saki. Choti image try karein.");
         }
     });
 </script>
